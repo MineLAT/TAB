@@ -7,9 +7,9 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.scoreboard.ScoreboardManager;
 import lombok.Getter;
-import me.neznamy.chat.TextColor;
-import me.neznamy.chat.component.TabComponent;
-import me.neznamy.chat.component.TextComponent;
+import me.neznamy.component.shared.TextColor;
+import me.neznamy.component.shared.component.TabComponent;
+import me.neznamy.component.shared.component.TextComponent;
 import me.neznamy.tab.platforms.velocity.features.VelocityRedisSupport;
 import me.neznamy.tab.platforms.velocity.hook.VelocityPremiumVanishHook;
 import me.neznamy.tab.shared.TAB;
@@ -22,7 +22,6 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.platform.impl.DummyScoreboard;
 import me.neznamy.tab.shared.proxy.ProxyPlatform;
 import me.neznamy.tab.shared.util.ReflectionUtils;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.NotNull;
@@ -145,12 +144,6 @@ public class VelocityPlatform extends ProxyPlatform {
     @NotNull
     public File getDataFolder() {
         return plugin.getDataFolder().toFile();
-    }
-
-    @Override
-    @NotNull
-    public Component convertComponent(@NotNull TabComponent component) {
-        return component.toAdventure();
     }
 
     @Override

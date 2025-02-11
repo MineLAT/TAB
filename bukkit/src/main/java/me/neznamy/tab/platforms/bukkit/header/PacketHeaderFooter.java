@@ -1,11 +1,11 @@
 package me.neznamy.tab.platforms.bukkit.header;
 
 import lombok.SneakyThrows;
+import me.neznamy.component.bukkit.BukkitComponentConverter;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
-import me.neznamy.tab.platforms.bukkit.nms.converter.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.PacketSender;
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.shared.util.function.BiFunctionWithException;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class PacketHeaderFooter extends HeaderFooter {
         Class<?> Component = BukkitReflection.getClass("network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
         Class<?> HeaderFooterClass = BukkitReflection.getClass("network.protocol.game.ClientboundTabListPacket",
                 "network.protocol.game.PacketPlayOutPlayerListHeaderFooter", "PacketPlayOutPlayerListHeaderFooter");
-        if (ComponentConverter.INSTANCE == null) throw new IllegalStateException("Component converter is not available");
+        if (BukkitComponentConverter.getException() != null) throw new IllegalStateException("Component converter is not available", BukkitComponentConverter.getException());
         if (BukkitReflection.getMinorVersion() >= 17) {
             Constructor<?> newHeaderFooter = HeaderFooterClass.getConstructor(Component, Component);
             createPacket = newHeaderFooter::newInstance;

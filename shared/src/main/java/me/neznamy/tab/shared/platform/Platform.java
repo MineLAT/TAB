@@ -1,6 +1,6 @@
 package me.neznamy.tab.shared.platform;
 
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.shared.GroupManager;
 import me.neznamy.tab.shared.features.PerWorldPlayerListConfiguration;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
@@ -127,16 +127,6 @@ public interface Platform {
      * @return  {@code true} if this platform is a proxy, {@code false} if not
      */
     boolean isProxy();
-
-    /**
-     * Converts thhe TAB component into platform's component.
-     *
-     * @param   component
-     *          Component to convert
-     * @return  Converted component
-     */
-    @NotNull
-    Object convertComponent(@NotNull TabComponent component);
 
     /**
      * Creates new scoreboard instance for given player.

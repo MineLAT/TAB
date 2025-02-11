@@ -3,13 +3,13 @@ package me.neznamy.tab.platforms.bukkit.scoreboard.packet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import me.neznamy.component.bukkit.BukkitComponentConverter;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
-import me.neznamy.tab.platforms.bukkit.nms.converter.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.PacketSender;
 import me.neznamy.tab.shared.Limitations;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.chat.component.TabComponent;
 import me.neznamy.tab.shared.platform.decorators.SafeScoreboard;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -82,7 +82,7 @@ public class PacketScoreboard extends SafeScoreboard<BukkitTabPlayer> {
             newScoreboardObjective = ReflectionUtils.getOnlyConstructor(ScoreboardObjective);
             if (minorVersion >= 7) {
                 Component = BukkitReflection.getClass("network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
-                if (ComponentConverter.INSTANCE == null) throw new IllegalStateException("Component converter is not available");
+                if (BukkitComponentConverter.getException() != null) throw new IllegalStateException("Component converter is not available", BukkitComponentConverter.getException());
             }
             if (minorVersion >= 8) {
                 Class<?> EnumScoreboardHealthDisplay = BukkitReflection.getClass(

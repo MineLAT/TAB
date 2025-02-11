@@ -1,7 +1,7 @@
 package me.neznamy.bossbar.bukkit;
 
 import me.neznamy.bossbar.shared.SafeBossBarManager;
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.api.bossbar.BarColor;
 import me.neznamy.tab.api.bossbar.BarStyle;
 import org.bukkit.Bukkit;

@@ -3,7 +3,8 @@ package me.neznamy.tab.platforms.bukkit.platform;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.neznamy.chat.component.*;
+import me.neznamy.component.shared.component.SimpleTextComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.platforms.bukkit.*;
 import me.neznamy.tab.platforms.bukkit.features.BukkitTabExpansion;
 import me.neznamy.tab.platforms.bukkit.features.PerWorldPlayerList;
@@ -11,7 +12,6 @@ import me.neznamy.tab.platforms.bukkit.header.HeaderFooter;
 import me.neznamy.tab.platforms.bukkit.hook.BukkitPremiumVanishHook;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.nms.PingRetriever;
-import me.neznamy.tab.platforms.bukkit.nms.converter.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.scoreboard.ScoreboardLoader;
 import me.neznamy.tab.platforms.bukkit.tablist.TabListBase;
 import me.neznamy.tab.shared.GroupManager;
@@ -92,7 +92,6 @@ public class BukkitPlatform implements BackendPlatform {
             new BukkitPremiumVanishHook().register();
         }
         PingRetriever.tryLoad();
-        ComponentConverter.tryLoad();
         ScoreboardLoader.findInstance();
         TabListBase.findInstance();
         if (BukkitReflection.getMinorVersion() >= 8) {
@@ -243,16 +242,6 @@ public class BukkitPlatform implements BackendPlatform {
     @NotNull
     public File getDataFolder() {
         return plugin.getDataFolder();
-    }
-
-    @Override
-    @NotNull
-    public Object convertComponent(@NotNull TabComponent component) {
-        if (ComponentConverter.INSTANCE != null) {
-            return ComponentConverter.INSTANCE.convert(component);
-        } else {
-            return component;
-        }
     }
 
     @Override

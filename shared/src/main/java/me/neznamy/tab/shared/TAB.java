@@ -2,9 +2,8 @@ package me.neznamy.tab.shared;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.neznamy.chat.TextColor;
-import me.neznamy.chat.component.TabComponent;
-import me.neznamy.chat.component.TextComponent;
+import me.neznamy.component.shared.TextColor;
+import me.neznamy.component.shared.component.TextComponent;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.bossbar.BossBarManager;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
@@ -131,7 +130,6 @@ public class TAB extends TabAPI {
      */
     private TAB(@NotNull Platform platform) {
         this.platform = platform;
-        TabComponent.CONVERT_FUNCTION = platform::convertComponent;
         dataFolder = platform.getDataFolder();
         errorManager = new ErrorManager(dataFolder);
         try {

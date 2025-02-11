@@ -1,6 +1,6 @@
 package me.neznamy.bossbar.shared;
 
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.api.bossbar.BarColor;
 import me.neznamy.tab.api.bossbar.BarStyle;
 import org.jetbrains.annotations.NotNull;

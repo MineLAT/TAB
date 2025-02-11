@@ -5,20 +5,18 @@ import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.platforms.fabric.FabricScoreboard;
 import me.neznamy.tab.platforms.fabric.FabricTabList;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.chat.ChatModifier;
-import me.neznamy.chat.component.TabComponent;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.platform.TabList;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.util.ReflectionUtils;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.PlayerUpdate;
@@ -36,7 +34,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementation containing methods in the state of the oldest supported
@@ -61,44 +61,6 @@ public class Loader_1_14_4 implements Loader {
     @NotNull
     public TabList.Skin propertyToSkin(@NotNull Property property) {
         return new TabList.Skin(property.getValue(), property.getSignature());
-    }
-
-    @Override
-    @NotNull
-    public Component newTextComponent(@NotNull String text) {
-        return new TextComponent(text);
-    }
-
-    @Override
-    @NotNull
-    public Component newTranslatableComponent(@NotNull String text) {
-        return new TranslatableComponent(text);
-    }
-
-    @Override
-    @NotNull
-    public Component newKeybindComponent(@NotNull String key) {
-        return new KeybindComponent(key);
-    }
-
-    @Override
-    @NotNull
-    public Style convertModifier(@NotNull ChatModifier modifier) {
-        Style style = new Style();
-        if (modifier.getColor() != null) {
-            style.setColor(ChatFormatting.valueOf(modifier.getColor().getLegacyColor().name()));
-        }
-        style.setBold(modifier.getBold());
-        style.setItalic(modifier.getItalic());
-        style.setStrikethrough(modifier.getStrikethrough());
-        style.setUnderlined(modifier.getUnderlined());
-        style.setObfuscated(modifier.getObfuscated());
-        return style;
-    }
-
-    @Override
-    public void addSibling(@NotNull Component parent, @NotNull Component child) {
-        parent.append(child);
     }
 
     @Override
@@ -243,11 +205,6 @@ public class Loader_1_14_4 implements Loader {
     @NotNull
     public Packet<?> setScore(@NotNull String objective, @NotNull String holder, int score, @Nullable Component displayName, @Nullable TabComponent numberFormat) {
         return new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, objective, holder, score);
-    }
-
-    @Override
-    public void setStyle(@NotNull Component component, @NotNull Style style) {
-        component.setStyle(style);
     }
 
     @Override

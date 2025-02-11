@@ -5,12 +5,14 @@ import eu.pb4.placeholders.api.PlaceholderHandler;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
 import lombok.Getter;
-import me.neznamy.tab.platforms.fabric.FabricMultiVersion;
+import me.neznamy.component.shared.ComponentConverter;
+import me.neznamy.component.shared.StructuredComponentConverter;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
 import me.neznamy.tab.shared.platform.TabPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +25,7 @@ import java.util.List;
 @Getter
 public class FabricTabExpansion implements TabExpansion {
 
+    @SuppressWarnings("unchecked")
     public FabricTabExpansion() {
         List<String> placeholders = Arrays.asList(
                 "tabprefix",
@@ -59,7 +62,7 @@ public class FabricTabExpansion implements TabExpansion {
                 for (String placeholder : PlaceholderManagerImpl.detectPlaceholders(text)) {
                     text = text.replace(placeholder, TAB.getInstance().getPlaceholderManager().findReplacement(placeholder,
                             Placeholders.parseText(
-                                    FabricMultiVersion.newTextComponent(placeholder),
+                                    ((StructuredComponentConverter<Component>) ComponentConverter.getInstance()).newTextComponent(placeholder),
                                     PlaceholderContext.of(ctx.player())
                             ).getString()));
                 }

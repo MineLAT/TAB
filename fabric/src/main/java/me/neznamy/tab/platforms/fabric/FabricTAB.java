@@ -3,6 +3,9 @@ package me.neznamy.tab.platforms.fabric;
 import lombok.SneakyThrows;
 import me.neznamy.bossbar.fabric.FabricBossBarAPI;
 import me.neznamy.bossbar.shared.BossBarAPI;
+import me.neznamy.component.fabric.FabricComponentConverter;
+import me.neznamy.component.shared.ComponentConverter;
+import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import net.fabricmc.api.DedicatedServerModInitializer;
@@ -19,6 +22,7 @@ public class FabricTAB implements DedicatedServerModInitializer {
 
     @Override
     public void onInitializeServer() {
+        ComponentConverter.setInstance(FabricComponentConverter.findInstance(ProtocolVersion.fromFriendlyName(minecraftVersion).getMinorVersion()));
         BossBarAPI.setInstance(new FabricBossBarAPI());
         if (ReflectionUtils.classExists("net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback")) {
             net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, $, $$) -> new FabricTabCommand().onRegisterCommands(dispatcher));

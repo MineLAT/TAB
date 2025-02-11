@@ -2,8 +2,8 @@ package me.neznamy.tab.shared.config;
 
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.chat.TextColor;
-import me.neznamy.chat.component.TextComponent;
+import me.neznamy.component.shared.TextColor;
+import me.neznamy.component.shared.component.TextComponent;
 import me.neznamy.tab.shared.config.file.ConfigurationFile;
 import me.neznamy.tab.shared.config.file.YamlConfigurationFile;
 import org.jetbrains.annotations.NotNull;

@@ -2,7 +2,7 @@ package me.neznamy.tab.platforms.sponge7;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.backend.BackendPlatform;
@@ -107,12 +107,6 @@ public class SpongePlatform implements BackendPlatform {
     @NotNull
     public File getDataFolder() {
         return plugin.getConfigDir();
-    }
-
-    @Override
-    @NotNull
-    public Text convertComponent(@NotNull TabComponent component) {
-        return Text.of(component.toLegacyText());
     }
 
     @Override

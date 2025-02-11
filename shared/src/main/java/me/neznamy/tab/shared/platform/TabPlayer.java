@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import me.neznamy.bossbar.shared.BossBarManager;
 import me.neznamy.bossbar.shared.BossBarAPI;
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.api.integration.VanishIntegration;
 import me.neznamy.tab.api.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.api.placeholder.RelationalPlaceholder;

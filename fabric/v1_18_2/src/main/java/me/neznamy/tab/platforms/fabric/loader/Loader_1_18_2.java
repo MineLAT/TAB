@@ -9,9 +9,7 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.platform.TabList;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.util.ReflectionUtils;
-import net.minecraft.network.chat.BaseComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.PlayerUpdate;
@@ -38,11 +36,6 @@ public class Loader_1_18_2 implements Loader {
     @Override
     public void sendMessage(@NotNull ServerPlayer player, @NotNull Component message) {
         player.sendMessage(message, new UUID(0, 0));
-    }
-
-    @Override
-    public void setStyle(@NotNull Component component, @NotNull Style style) {
-        ((BaseComponent)component).setStyle(style);
     }
 
     @Override

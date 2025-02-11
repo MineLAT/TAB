@@ -3,20 +3,18 @@ package me.neznamy.tab.platforms.fabric.loader;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.platforms.fabric.FabricScoreboard;
 import me.neznamy.tab.platforms.fabric.FabricTabList;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.chat.ChatModifier;
-import me.neznamy.chat.component.TabComponent;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.platform.TabList;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.numbers.FixedFormat;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
@@ -54,47 +52,6 @@ public class Loader_Latest implements Loader {
     @NotNull
     public TabList.Skin propertyToSkin(@NotNull Property property) {
         return new TabList.Skin(property.value(), property.signature());
-    }
-
-    @Override
-    @NotNull
-    public Component newTextComponent(@NotNull String text) {
-        return Component.literal(text);
-    }
-
-    @Override
-    @NotNull
-    public Component newTranslatableComponent(@NotNull String text) {
-        return Component.translatable(text);
-    }
-
-    @Override
-    @NotNull
-    public Component newKeybindComponent(@NotNull String key) {
-        return Component.keybind(key);
-    }
-
-    @Override
-    @NotNull
-    public Style convertModifier(@NotNull ChatModifier modifier) {
-        return new Style(
-                modifier.getColor() == null ? null : TextColor.fromRgb(modifier.getColor().getRgb()),
-                modifier.getShadowColor(),
-                modifier.getBold(),
-                modifier.getItalic(),
-                modifier.getUnderlined(),
-                modifier.getStrikethrough(),
-                modifier.getObfuscated(),
-                null,
-                null,
-                null,
-                modifier.getFont() == null ? null : ResourceLocation.tryParse(modifier.getFont())
-        );
-    }
-
-    @Override
-    public void addSibling(@NotNull Component parent, @NotNull Component child) {
-        parent.getSiblings().add(child);
     }
 
     @Override
@@ -240,11 +197,6 @@ public class Loader_Latest implements Loader {
     @NotNull
     public Packet<?> setScore(@NotNull String objective, @NotNull String holder, int score, @Nullable Component displayName, @Nullable TabComponent numberFormat) {
         return Register1_20_3.setScore(objective, holder, score, displayName, numberFormat);
-    }
-
-    @Override
-    public void setStyle(@NotNull Component component, @NotNull Style style) {
-        ((MutableComponent)component).setStyle(style);
     }
 
     @Override

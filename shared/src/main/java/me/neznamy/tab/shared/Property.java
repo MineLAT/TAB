@@ -1,18 +1,17 @@
 package me.neznamy.tab.shared;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Getter;
+import me.neznamy.component.shared.EnumChatFormat;
 import me.neznamy.tab.shared.features.PlaceholderManagerImpl;
 import me.neznamy.tab.shared.features.types.RefreshableFeature;
-import me.neznamy.chat.EnumChatFormat;
-import me.neznamy.chat.rgb.RGBUtils;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
 import me.neznamy.tab.shared.placeholders.types.RelationalPlaceholderImpl;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A dynamic text with placeholder support. If any placeholder

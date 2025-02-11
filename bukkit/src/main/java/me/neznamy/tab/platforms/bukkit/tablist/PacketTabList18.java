@@ -5,9 +5,9 @@ import com.mojang.authlib.properties.Property;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import me.neznamy.component.bukkit.BukkitComponentConverter;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
-import me.neznamy.tab.platforms.bukkit.nms.converter.ComponentConverter;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.nms.PacketSender;
 import me.neznamy.tab.shared.TAB;
@@ -100,7 +100,7 @@ public class PacketTabList18 extends TabListBase<Object> {
                 Enum.valueOf(gameMode, "SPECTATOR")
         };
         packetSender = new PacketSender();
-        if (ComponentConverter.INSTANCE == null) throw new IllegalStateException("Component converter is not available");
+        if (BukkitComponentConverter.getException() != null) throw new IllegalStateException("Component converter is not available", BukkitComponentConverter.getException());
         try {
             skinData = new SkinData();
         } catch (Exception e) {

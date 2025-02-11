@@ -3,7 +3,7 @@ package me.neznamy.tab.platforms.bukkit.tablist;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import me.neznamy.chat.component.TabComponent;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
 import me.neznamy.tab.platforms.bukkit.header.HeaderFooter;

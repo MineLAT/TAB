@@ -4,10 +4,9 @@ import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.Placeholders;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.neznamy.chat.component.KeybindComponent;
-import me.neznamy.chat.component.TabComponent;
-import me.neznamy.chat.component.TextComponent;
-import me.neznamy.chat.component.TranslatableComponent;
+import me.neznamy.component.shared.ComponentConverter;
+import me.neznamy.component.shared.StructuredComponentConverter;
+import me.neznamy.component.shared.component.TabComponent;
 import me.neznamy.tab.platforms.fabric.hook.FabricTabExpansion;
 import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.TAB;
@@ -47,6 +46,7 @@ public class FabricPlatform implements BackendPlatform {
     private final ProtocolVersion serverVersion = ProtocolVersion.fromFriendlyName(FabricTAB.minecraftVersion);
 
     @Override
+    @SuppressWarnings("unchecked")
     public void registerUnknownPlaceholder(@NotNull String identifier) {
         if (!FabricLoader.getInstance().isModLoaded("placeholder-api")) {
             registerDummyPlaceholder(identifier);
@@ -57,9 +57,9 @@ public class FabricPlatform implements BackendPlatform {
         int refresh = manager.getRefreshInterval(identifier);
         manager.registerPlayerPlaceholder(identifier, refresh,
                 p -> Placeholders.parseText(
-                            FabricMultiVersion.newTextComponent(identifier),
-                            PlaceholderContext.of((ServerPlayer) p.getPlayer())
-                        ).getString()
+                        ((StructuredComponentConverter<Component>)ComponentConverter.getInstance()).newTextComponent(identifier),
+                        PlaceholderContext.of((ServerPlayer) p.getPlayer())
+                ).getString()
         );
     }
 
@@ -130,32 +130,6 @@ public class FabricPlatform implements BackendPlatform {
     @NotNull
     public File getDataFolder() {
         return FabricLoader.getInstance().getConfigDir().resolve(TabConstants.PLUGIN_ID).toFile();
-    }
-
-    @Override
-    @NotNull
-    public Component convertComponent(@NotNull TabComponent component) {
-        // Component type
-        Component nmsComponent;
-        if (component instanceof TextComponent) {
-            nmsComponent = FabricMultiVersion.newTextComponent(((TextComponent) component).getText());
-        } else if (component instanceof TranslatableComponent) {
-            nmsComponent = FabricMultiVersion.newTranslatableComponent(((TranslatableComponent) component).getKey());
-        } else if (component instanceof KeybindComponent) {
-            nmsComponent = FabricMultiVersion.newKeybindComponent(((KeybindComponent) component).getKeybind());
-        } else {
-            throw new IllegalStateException("Unexpected component type: " + component.getClass().getName());
-        }
-
-        // Component style
-        FabricMultiVersion.setStyle(nmsComponent, FabricMultiVersion.convertModifier(component.getModifier()));
-
-        // Extra
-        for (TabComponent extra : component.getExtra()) {
-            FabricMultiVersion.addSibling(nmsComponent, convertComponent(extra));
-        }
-
-        return nmsComponent;
     }
 
     @Override

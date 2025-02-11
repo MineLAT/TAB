@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import lombok.Getter;
 import me.neznamy.bossbar.shared.BossBarAPI;
 import me.neznamy.bossbar.shared.impl.AdventureBossBarAPI;
+import me.neznamy.component.shared.ComponentConverter;
+import me.neznamy.component.shared.hook.AdventureComponentConverter;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import org.bstats.sponge.Metrics;
@@ -40,6 +42,7 @@ public class Sponge8TAB {
      */
     @Listener
     public void onServerStart(@Nullable StartingEngineEvent<Server> event) {
+        ComponentConverter.setInstance(new AdventureComponentConverter());
         BossBarAPI.setInstance(new AdventureBossBarAPI());
         TAB.create(new SpongePlatform(this));
     }

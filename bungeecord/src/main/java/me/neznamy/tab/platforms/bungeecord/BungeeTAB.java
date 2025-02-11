@@ -2,6 +2,8 @@ package me.neznamy.tab.platforms.bungeecord;
 
 import me.neznamy.bossbar.bungee.BungeeBossBarAPI;
 import me.neznamy.bossbar.shared.BossBarAPI;
+import me.neznamy.component.bungee.BungeeComponentConverter;
+import me.neznamy.component.shared.ComponentConverter;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.util.ReflectionUtils;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -21,6 +23,7 @@ public class BungeeTAB extends Plugin {
             getLogger().warning("§c====================================================================================================");
             return;
         }
+        ComponentConverter.setInstance(new BungeeComponentConverter());
         BossBarAPI.setInstance(new BungeeBossBarAPI(this));
         TAB.create(new BungeePlatform(this));
     }
