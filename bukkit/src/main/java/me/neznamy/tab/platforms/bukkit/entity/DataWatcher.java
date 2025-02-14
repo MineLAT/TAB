@@ -19,7 +19,7 @@ import java.util.*;
  * A class representing the n.m.s.DataWatcher class to make work with it much easier
  */
 @ToString
-public class DataWatcher implements EntityData {
+public class DataWatcher implements EntityDataBase {
 
     private static Object DataWatcherSerializer_BYTE;
     private static Object DataWatcherSerializer_FLOAT;
@@ -131,6 +131,7 @@ public class DataWatcher implements EntityData {
      * @param   flags
      *          flags to write
      */
+    @Override
     public void setEntityFlags(byte flags) {
         setValue(0, DataWatcherSerializer_BYTE, flags);
     }
@@ -143,6 +144,7 @@ public class DataWatcher implements EntityData {
      * @param   clientVersion
      *          client version
      */
+    @Override
     public void setCustomName(@NotNull String customName, @NotNull ProtocolVersion clientVersion) {
         if (BukkitReflection.getMinorVersion() >= 13) {
             setValue(2, DataWatcherSerializer_OPTIONAL_COMPONENT, Optional.of(TabComponent.optimized(customName).convert(clientVersion)));
@@ -166,6 +168,7 @@ public class DataWatcher implements EntityData {
      * @param   visible
      *          if visible or not
      */
+    @Override
     public void setCustomNameVisible(boolean visible) {
         if (BukkitReflection.getMinorVersion() >= 9) {
             setValue(3, DataWatcherSerializer_BOOLEAN, visible);
@@ -180,6 +183,7 @@ public class DataWatcher implements EntityData {
      * @param   health
      *          health of entity
      */
+    @Override
     public void setHealth(float health) {
         if (BukkitReflection.getMinorVersion() >= 6) {
             setValue(6, DataWatcherSerializer_FLOAT, health);
@@ -194,6 +198,7 @@ public class DataWatcher implements EntityData {
      * @param   flags
      *          flags to write
      */
+    @Override
     public void setArmorStandFlags(byte flags) {
         setValue(armorStandFlagsPosition, DataWatcherSerializer_BYTE, flags);
     }
@@ -203,6 +208,7 @@ public class DataWatcher implements EntityData {
      * @param   time
      *          Time, apparently
      */
+    @Override
     public void setWitherInvulnerableTime(int time) {
         if (BukkitReflection.getMinorVersion() > 8)
             throw new UnsupportedOperationException("Not supported on 1.9+");

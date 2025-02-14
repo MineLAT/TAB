@@ -5,6 +5,7 @@ import lombok.NonNull;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
+import me.neznamy.tab.shared.hook.ViaVersionHook;
 import me.neznamy.tab.shared.platform.TabList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +51,17 @@ public abstract class TabListBase<C> extends TabList<BukkitTabPlayer, C> {
                 instance = PacketTabList1193::new;
             } else if (BukkitReflection.getMinorVersion() >= 8) {
                 PacketTabList18.load();
-                instance = PacketTabList18::new;
+                if (BukkitReflection.getMinorVersion() >= 16 || !ViaVersionHook.getInstance().isInstalled()) {
+                    instance = PacketTabList18::new;
+                } else {
+                    instance = player -> {
+                        if (player.getVersion().supportsRGB()) {
+                            return new ViaTabList(player);
+                        } else {
+                            return new PacketTabList18(player);
+                        }
+                    };
+                }
             } else {
                 PacketTabList17.load();
                 instance = PacketTabList17::new;
@@ -76,7 +87,7 @@ public abstract class TabListBase<C> extends TabList<BukkitTabPlayer, C> {
     }
 
     @Override
-    public void setPlayerListHeaderFooter0(@NonNull Object header, @NonNull Object footer) {
+    public void setPlayerListHeaderFooter0(@NonNull C header, @NonNull C footer) {
         if (headerFooter != null) headerFooter.set(player, header, footer);
     }
 

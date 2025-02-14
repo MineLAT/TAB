@@ -107,8 +107,8 @@ public abstract class TabList<P extends TabPlayer, C> {
      *          Footer to use
      */
     public void setPlayerListHeaderFooter(@NonNull TabComponent header, @NonNull TabComponent footer) {
-        C convertedHeader = header.convert(player.getVersion());
-        C convertedFooter = footer.convert(player.getVersion());
+        C convertedHeader = toComponent(header);
+        C convertedFooter = toComponent(footer);
         expectedHeader = convertedHeader;
         expectedFooter = convertedFooter;
         setPlayerListHeaderFooter0(convertedHeader, convertedFooter);
@@ -146,7 +146,7 @@ public abstract class TabList<P extends TabPlayer, C> {
                 "for viewer " + viewer.getName() + " than expected, fixing.");
     }
 
-    private void setExpectedDisplayName(@NonNull UUID entry, @Nullable C displayName) {
+    protected void setExpectedDisplayName(@NonNull UUID entry, @Nullable C displayName) {
         if (!antiOverride) return;
         TabPlayer player = TAB.getInstance().getPlayerByTabListUUID(entry);
         if (player != null) expectedDisplayNames.put(player, displayName);

@@ -75,7 +75,7 @@ public class PacketEntityView implements EntityView {
     private static boolean available;
 
     /** Player this view belongs to */
-    private final BukkitTabPlayer player;
+    protected final BukkitTabPlayer player;
 
     /**
      * Loads all required classes and fields and marks class as available.

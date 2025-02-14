@@ -89,8 +89,8 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 objective,
                 scoreHolder,
                 score,
-                displayName == null ? null : displayName.convert(player.getVersion()),
-                numberFormat == null ? null : numberFormat.convert(player.getVersion())
+                displayName == null ? null : toComponent(displayName),
+                numberFormat == null ? null : toComponent(numberFormat)
         );
     }
 
@@ -134,7 +134,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 objectiveName,
                 cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13),
                 display,
-                numberFormat == null ? null : numberFormat.convert(player.getVersion())
+                numberFormat == null ? null : toComponent(numberFormat)
         );
     }
 
@@ -176,7 +176,7 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
                 objectiveName,
                 cutTo(title, Limitations.SCOREBOARD_TITLE_PRE_1_13),
                 display,
-                numberFormat == null ? null : numberFormat.convert(player.getVersion())
+                numberFormat == null ? null : toComponent(numberFormat)
         );
     }
 
@@ -440,6 +440,10 @@ public abstract class Scoreboard<T extends TabPlayer, C> {
             lastTeamOverrideMessage = message;
             TAB.getInstance().getErrorManager().printError(message, Collections.emptyList(), false, TAB.getInstance().getErrorManager().getAntiOverrideLog());
         }
+    }
+
+    public C toComponent(@NonNull TabComponent component) {
+        return component.convert(player.getVersion());
     }
 
     protected abstract void setDisplaySlot0(int slot, @NonNull String objective);

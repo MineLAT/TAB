@@ -3,7 +3,9 @@ package me.neznamy.tab.platforms.bukkit.scoreboard;
 import lombok.Getter;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
+import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.scoreboard.packet.PacketScoreboard;
+import me.neznamy.tab.shared.hook.ViaVersionHook;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +26,17 @@ public class ScoreboardLoader {
      */
     public static void tryLoad() {
         if (PacketScoreboard.isAvailable()) {
-            instance = PacketScoreboard::new;
+            if (BukkitReflection.getMinorVersion() >= 16 || !ViaVersionHook.getInstance().isInstalled()) {
+                instance = PacketScoreboard::new;
+            } else {
+                instance = player -> {
+                    if (player.getVersion().supportsRGB()) {
+                        return new ViaScoreboard(player);
+                    } else {
+                        return new PacketScoreboard(player);
+                    }
+                };
+            }
         } else {
             BukkitUtils.compatibilityError(PacketScoreboard.getException(), "Scoreboards", null,
                     "Scoreboard feature will not work",

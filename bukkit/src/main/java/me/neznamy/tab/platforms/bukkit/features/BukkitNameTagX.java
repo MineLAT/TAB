@@ -1,12 +1,15 @@
 package me.neznamy.tab.platforms.bukkit.features;
 
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
+import me.neznamy.tab.platforms.bukkit.entity.EntityDataBase;
+import me.neznamy.tab.platforms.bukkit.entity.ViaEntityData;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.entity.DataWatcher;
 import me.neznamy.tab.platforms.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.backend.EntityData;
 import me.neznamy.tab.shared.backend.features.unlimitedtags.BackendNameTagX;
+import me.neznamy.tab.shared.hook.ViaVersionHook;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -170,12 +173,17 @@ public class BukkitNameTagX extends BackendNameTagX implements Listener {
     @Override
     @NotNull
     public EntityData createDataWatcher(@NotNull TabPlayer viewer, byte flags, @NotNull String displayName, boolean nameVisible) {
-        DataWatcher datawatcher = new DataWatcher();
-        datawatcher.setEntityFlags(flags);
-        datawatcher.setCustomName(displayName, viewer.getVersion());
-        datawatcher.setCustomNameVisible(nameVisible);
-        datawatcher.setArmorStandFlags(datawatcher.MARKER_FLAG);
-        return datawatcher;
+        final EntityDataBase data;
+        if (ViaVersionHook.getInstance().isInstalled() && BukkitReflection.getMinorVersion() < 16 && viewer.getVersion().supportsRGB()) {
+            data = new ViaEntityData();
+        } else {
+            data = new DataWatcher();
+        }
+        data.setEntityFlags(flags);
+        data.setCustomName(displayName, viewer.getVersion());
+        data.setCustomNameVisible(nameVisible);
+        data.setArmorStandFlags(EntityData.MARKER_FLAG);
+        return data;
     }
 
     @Override
