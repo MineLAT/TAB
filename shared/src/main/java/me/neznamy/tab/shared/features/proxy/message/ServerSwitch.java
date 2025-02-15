@@ -1,39 +1,39 @@
-package me.neznamy.tab.shared.features.redis.message;
+package me.neznamy.tab.shared.features.proxy.message;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import me.neznamy.tab.shared.features.redis.RedisPlayer;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxyPlayer;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateVanishStatus extends RedisMessage {
+public class ServerSwitch extends ProxyMessage {
 
     private UUID playerId;
-    private boolean vanished;
+    private String newServer;
 
     @Override
     public void write(@NotNull ByteArrayDataOutput out) {
         writeUUID(out, playerId);
-        out.writeBoolean(vanished);
+        out.writeUTF(newServer);
     }
 
     @Override
     public void read(@NotNull ByteArrayDataInput in) {
         playerId = readUUID(in);
-        vanished = in.readBoolean();
+        newServer = in.readUTF();
     }
 
     @Override
-    public void process(@NotNull RedisSupport redisSupport) {
-        RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
+    public void process(@NotNull ProxySupport proxySupport) {
+        ProxyPlayer target = proxySupport.getProxyPlayers().get(playerId);
         if (target == null) return; // Print warn?
-        target.setVanished(vanished);
-        redisSupport.getFeatures().forEach(f -> f.onVanishStatusChange(target));
+        target.setServer(newServer);
+        proxySupport.getFeatures().forEach(f -> f.onServerSwitch(target));
     }
 }

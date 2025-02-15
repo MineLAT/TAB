@@ -11,7 +11,7 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.hook.AdventureHook;
 import me.neznamy.tab.shared.hook.PremiumVanishHook;
 import me.neznamy.tab.shared.proxy.ProxyPlatform;
@@ -62,7 +62,7 @@ public class VelocityPlatform extends ProxyPlatform {
 
     @Override
     @Nullable
-    public RedisSupport getRedisSupport() {
+    public ProxySupport getProxySupport() {
         if (ReflectionUtils.classExists("com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI") &&
                 RedisBungeeAPI.getRedisBungeeApi() != null) {
             return new VelocityRedisSupport(plugin);

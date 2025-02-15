@@ -9,7 +9,7 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.types.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +37,7 @@ public class BelowName extends TabFeature implements JoinListener, Loadable, UnL
 
     private final TextRefresher textRefresher = new TextRefresher(this);
     private final DisableChecker disableChecker;
-    private RedisSupport redis;
+    private ProxySupport proxy;
 
     /**
      * Constructs new instance and registers disable condition checker and text refresher to feature manager.
@@ -52,7 +52,7 @@ public class BelowName extends TabFeature implements JoinListener, Loadable, UnL
 
     @Override
     public void load() {
-        redis = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
+        proxy = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PROXY_SUPPORT);
         Map<TabPlayer, Integer> values = new HashMap<>();
         for (TabPlayer loaded : TAB.getInstance().getOnlinePlayers()) {
             loaded.setProperty(this, NUMBER_PROPERTY, rawNumber);
@@ -103,7 +103,7 @@ public class BelowName extends TabFeature implements JoinListener, Loadable, UnL
                 setScore(connectedPlayer, all, getValue(all), all.getProperty(FANCY_FORMAT_PROPERTY).getFormat(connectedPlayer));
             }
         }
-        if (redis != null) redis.updateBelowName(connectedPlayer, number, fancy.get());
+        if (proxy != null) proxy.updateBelowName(connectedPlayer, number, fancy.get());
     }
 
     /**
@@ -157,7 +157,7 @@ public class BelowName extends TabFeature implements JoinListener, Loadable, UnL
             if (!sameServerAndWorld(viewer, refreshed)) continue;
             setScore(viewer, refreshed, number, fancy.getFormat(viewer));
         }
-        if (redis != null) redis.updateBelowName(refreshed, number, fancy.get());
+        if (proxy != null) proxy.updateBelowName(refreshed, number, fancy.get());
     }
 
     @Override

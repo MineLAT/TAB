@@ -12,7 +12,7 @@ import me.neznamy.tab.shared.features.injection.PipelineInjector;
 import me.neznamy.tab.shared.features.layout.LayoutManagerImpl;
 import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.scoreboard.ScoreboardManagerImpl;
 import me.neznamy.tab.shared.features.sorting.Sorting;
 import me.neznamy.tab.shared.features.types.*;
@@ -520,8 +520,8 @@ public class FeatureManager {
         }
 
         // Must be loaded after: Global PlayerList, PlayerList, NameTags, YellowNumber, BelowName
-        RedisSupport redis = TAB.getInstance().getPlatform().getRedisSupport();
-        if (redis != null) TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.REDIS_BUNGEE, redis);
+        ProxySupport proxy = TAB.getInstance().getPlatform().getProxySupport();
+        if (proxy != null) TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.PROXY_SUPPORT, proxy);
 
         featureManager.registerFeature(TabConstants.Feature.NICK_COMPATIBILITY, new NickCompatibility());
     }

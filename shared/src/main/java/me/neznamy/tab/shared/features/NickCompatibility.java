@@ -7,11 +7,11 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.features.nametags.NameTag;
-import me.neznamy.tab.shared.features.redis.RedisPlayer;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
-import me.neznamy.tab.shared.features.redis.feature.RedisBelowName;
-import me.neznamy.tab.shared.features.redis.feature.RedisTeams;
-import me.neznamy.tab.shared.features.redis.feature.RedisYellowNumber;
+import me.neznamy.tab.shared.features.proxy.ProxyPlayer;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
+import me.neznamy.tab.shared.features.proxy.feature.ProxyBelowName;
+import me.neznamy.tab.shared.features.proxy.feature.ProxyTeams;
+import me.neznamy.tab.shared.features.proxy.feature.ProxyYellowNumber;
 import me.neznamy.tab.shared.features.types.EntryAddListener;
 import me.neznamy.tab.shared.features.types.TabFeature;
 import me.neznamy.tab.shared.platform.Scoreboard;
@@ -29,10 +29,10 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
     @Nullable private final NameTag nameTags = TAB.getInstance().getNameTagManager();
     @Nullable private final BelowName belowname = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.BELOW_NAME);
     @Nullable private final YellowNumber yellownumber = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.YELLOW_NUMBER);
-    @Nullable private final RedisSupport redis = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
-    @Nullable private final RedisTeams redisTeams = redis == null ? null : redis.getRedisTeams();
-    @Nullable private final RedisYellowNumber redisYellowNumber = redis == null ? null : redis.getRedisYellowNumber();
-    @Nullable private final RedisBelowName redisBelowName = redis == null ? null : redis.getRedisBelowName();
+    @Nullable private final ProxySupport proxy = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PROXY_SUPPORT);
+    @Nullable private final ProxyTeams proxyTeams = proxy == null ? null : proxy.getProxyTeams();
+    @Nullable private final ProxyYellowNumber proxyYellowNumber = proxy == null ? null : proxy.getProxyYellowNumber();
+    @Nullable private final ProxyBelowName proxyBelowName = proxy == null ? null : proxy.getProxyBelowName();
 
     public synchronized void onEntryAdd(TabPlayer packetReceiver, UUID id, String name) {
         TabPlayer packetPlayer = TAB.getInstance().getPlayerByTabListUUID(id);
@@ -48,13 +48,13 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
             TAB.getInstance().debug("Processing name change of player " + packetPlayer.getName() + " to " + name);
             processNameChange(packetPlayer);
         }
-        if (redis != null) {
-            RedisPlayer redisPlayer = redis.getRedisPlayers().get(id);
-            if (redisPlayer == null) return;
-            if (!redisPlayer.getNickname().equals(name)) {
-                redisPlayer.setNickname(name);
-                TAB.getInstance().debug("Processing name change of redis player " + redisPlayer.getName() + " to " + name);
-                processNameChange(redisPlayer);
+        if (proxy != null) {
+            ProxyPlayer proxyPlayer = proxy.getProxyPlayers().get(id);
+            if (proxyPlayer == null) return;
+            if (!proxyPlayer.getNickname().equals(name)) {
+                proxyPlayer.setNickname(name);
+                TAB.getInstance().debug("Processing name change of proxy player " + proxyPlayer.getName() + " to " + name);
+                processNameChange(proxyPlayer);
             }
         }
     }
@@ -96,9 +96,9 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
         });
     }
 
-    private void processNameChange(RedisPlayer player) {
+    private void processNameChange(ProxyPlayer player) {
         TAB.getInstance().getCPUManager().runMeasuredTask(getFeatureName(), TabConstants.CpuUsageCategory.NICK_PLUGIN_COMPATIBILITY, () -> {
-            if (redisTeams != null) {
+            if (proxyTeams != null) {
                 String teamName = player.getTeamName();
                 for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
                     viewer.getScoreboard().unregisterTeam(teamName);
@@ -109,12 +109,12 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
                             player.getNameVisibility(),
                             Scoreboard.CollisionRule.ALWAYS,
                             Collections.singletonList(player.getNickname()),
-                            redisTeams.getNameTags().getTeamOptions(),
+                            proxyTeams.getNameTags().getTeamOptions(),
                             EnumChatFormat.lastColorsOf(player.getTagPrefix())
                     );
                 }
             }
-            if (redisBelowName != null) {
+            if (proxyBelowName != null) {
                 for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
                     all.getScoreboard().setScore(
                             BelowName.OBJECTIVE_NAME,
@@ -125,7 +125,7 @@ public class NickCompatibility extends TabFeature implements EntryAddListener {
                     );
                 }
             }
-            if (redisYellowNumber != null) {
+            if (proxyYellowNumber != null) {
                 for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
                     all.getScoreboard().setScore(
                             YellowNumber.OBJECTIVE_NAME,

@@ -1,13 +1,13 @@
-package me.neznamy.tab.shared.features.redis.message;
+package me.neznamy.tab.shared.features.proxy.message;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public abstract class RedisMessage {
+public abstract class ProxyMessage {
 
     public void writeUUID(@NotNull ByteArrayDataOutput out, @NotNull UUID id) {
         out.writeLong(id.getMostSignificantBits());
@@ -22,5 +22,5 @@ public abstract class RedisMessage {
 
     public abstract void read(@NotNull ByteArrayDataInput in);
 
-    public abstract void process(@NotNull RedisSupport redisSupport);
+    public abstract void process(@NotNull ProxySupport proxySupport);
 }

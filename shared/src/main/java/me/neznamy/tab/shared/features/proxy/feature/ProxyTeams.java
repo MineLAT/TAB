@@ -1,4 +1,4 @@
-package me.neznamy.tab.shared.features.redis.feature;
+package me.neznamy.tab.shared.features.proxy.feature;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -9,9 +9,9 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.EnumChatFormat;
 import me.neznamy.tab.shared.features.nametags.NameTag;
-import me.neznamy.tab.shared.features.redis.RedisPlayer;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
-import me.neznamy.tab.shared.features.redis.message.RedisMessage;
+import me.neznamy.tab.shared.features.proxy.ProxyPlayer;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
+import me.neznamy.tab.shared.features.proxy.message.ProxyMessage;
 import me.neznamy.tab.shared.platform.Scoreboard.NameVisibility;
 import me.neznamy.tab.shared.platform.Scoreboard.CollisionRule;
 import me.neznamy.tab.shared.platform.TabPlayer;
@@ -20,28 +20,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @Getter
-public class RedisTeams extends RedisFeature {
+public class ProxyTeams extends ProxyFeature {
 
-    private final RedisSupport redisSupport;
+    private final ProxySupport proxySupport;
     private final NameTag nameTags;
 
-    public RedisTeams(@NotNull RedisSupport redisSupport, @NotNull NameTag nameTags) {
-        this.redisSupport = redisSupport;
+    public ProxyTeams(@NotNull ProxySupport proxySupport, @NotNull NameTag nameTags) {
+        this.proxySupport = proxySupport;
         this.nameTags = nameTags;
-        redisSupport.registerMessage("teams", Update.class, Update::new);
+        proxySupport.registerMessage("teams", Update.class, Update::new);
     }
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
-        for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            player.getScoreboard().registerTeam(redis.getTeamName(), redis.getTagPrefix(), redis.getTagSuffix(),
-                        redis.getNameVisibility(), CollisionRule.ALWAYS,
-                        Collections.singletonList(redis.getNickname()), 2, EnumChatFormat.lastColorsOf(redis.getTagPrefix()));
+        for (ProxyPlayer proxied : proxySupport.getProxyPlayers().values()) {
+            player.getScoreboard().registerTeam(proxied.getTeamName(), proxied.getTagPrefix(), proxied.getTagSuffix(),
+                        proxied.getNameVisibility(), CollisionRule.ALWAYS,
+                        Collections.singletonList(proxied.getNickname()), 2, EnumChatFormat.lastColorsOf(proxied.getTagPrefix()));
         }
     }
 
     @Override
-    public void onJoin(@NotNull RedisPlayer player) {
+    public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             viewer.getScoreboard().registerTeam(player.getTeamName(), player.getTagPrefix(), player.getTagSuffix(),
                     player.getNameVisibility(), CollisionRule.ALWAYS,
@@ -50,7 +50,7 @@ public class RedisTeams extends RedisFeature {
     }
 
     @Override
-    public void onQuit(@NotNull RedisPlayer player) {
+    public void onQuit(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             viewer.getScoreboard().unregisterTeam(player.getTeamName());
         }
@@ -65,7 +65,7 @@ public class RedisTeams extends RedisFeature {
     }
 
     @Override
-    public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+    public void read(@NotNull ByteArrayDataInput in, @NotNull ProxyPlayer player) {
         String teamName = in.readUTF();
         teamName = checkTeamName(player, teamName.substring(0, teamName.length()-1), 65);
         player.setTeamName(teamName);
@@ -79,14 +79,14 @@ public class RedisTeams extends RedisFeature {
         onJoin(player);
     }
 
-    private @NotNull String checkTeamName(@NotNull RedisPlayer player, @NotNull String currentName15, int id) {
+    private @NotNull String checkTeamName(@NotNull ProxyPlayer player, @NotNull String currentName15, int id) {
         String potentialTeamName = currentName15 + (char)id;
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
             if (all.sortingData.getShortTeamName().equals(potentialTeamName)) {
                 return checkTeamName(player, currentName15, id+1);
             }
         }
-        for (RedisPlayer all : redisSupport.getRedisPlayers().values()) {
+        for (ProxyPlayer all : proxySupport.getProxyPlayers().values()) {
             if (all == player) continue;
             if (potentialTeamName.equals(all.getTeamName())) {
                 return checkTeamName(player, currentName15, id+1);
@@ -97,7 +97,7 @@ public class RedisTeams extends RedisFeature {
 
     @NoArgsConstructor
     @AllArgsConstructor
-    public class Update extends RedisMessage {
+    public class Update extends ProxyMessage {
 
         private UUID playerId;
         private String teamName;
@@ -124,8 +124,8 @@ public class RedisTeams extends RedisFeature {
         }
 
         @Override
-        public void process(@NotNull RedisSupport redisSupport) {
-            RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
+        public void process(@NotNull ProxySupport proxySupport) {
+            ProxyPlayer target = proxySupport.getProxyPlayers().get(playerId);
             if (target == null) return; // Print warn?
             String oldTeamName = target.getTeamName();
             String newTeamName = checkTeamName(target, teamName.substring(0, teamName.length()-1), 65);

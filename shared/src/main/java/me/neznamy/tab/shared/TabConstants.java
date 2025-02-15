@@ -49,7 +49,7 @@ public class TabConstants {
         public static final String PLAYER_SNEAK = "Player Sneak";
         public static final String PLAYER_RESPAWN = "Player Respawn";
         public static final String PLUGIN_MESSAGE = "Plugin Message processing";
-        public static final String REDIS_BUNGEE_MESSAGE = "Redis Message processing";
+        public static final String PROXY_BUNGEE_MESSAGE = "Proxy Message processing";
 
         // Packets
         public static final String ANTI_OVERRIDE = "Anti override";
@@ -173,12 +173,12 @@ public class TabConstants {
         public static final String UNLIMITED_NAME_TAGS_PACKET_LISTENER = "nametagx-packet";
         public static final String UNLIMITED_NAME_TAGS_VEHICLE_REFRESHER = "nametagx-vehicle";
         public static final String PING_SPOOF = "PingSpoof";
+        public static final String PROXY_SUPPORT = "ProxyBungee";
 
         //Bukkit only
         public static final String PER_WORLD_PLAYER_LIST = "PerWorldPlayerList";
 
         //BungeeCord only
-        public static final String REDIS_BUNGEE = "RedisBungee";
         public static final String GLOBAL_PLAYER_LIST = "GlobalPlayerList";
 
         //additional info displayed in cpu command

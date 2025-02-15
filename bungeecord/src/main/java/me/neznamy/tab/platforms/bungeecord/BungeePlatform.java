@@ -7,7 +7,7 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.*;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.hook.PremiumVanishHook;
 import me.neznamy.tab.shared.proxy.ProxyPlatform;
 import me.neznamy.tab.shared.util.ReflectionUtils;
@@ -66,7 +66,7 @@ public class BungeePlatform extends ProxyPlatform {
 
     @Override
     @Nullable
-    public RedisSupport getRedisSupport() {
+    public ProxySupport getProxySupport() {
         if (ReflectionUtils.classExists("com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI") &&
                 RedisBungeeAPI.getRedisBungeeApi() != null) {
             return new BungeeRedisSupport(plugin);

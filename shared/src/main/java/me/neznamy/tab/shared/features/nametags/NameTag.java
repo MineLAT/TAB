@@ -10,7 +10,7 @@ import me.neznamy.tab.shared.platform.Scoreboard.NameVisibility;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.TAB;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.types.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +28,7 @@ public class NameTag extends TabFeature implements NameTagManager, JoinListener,
     @Getter private final CollisionManager collisionManager = new CollisionManager(this);
     @Getter private final int teamOptions = canSeeFriendlyInvisibles ? 2 : 0;
     @Getter private final DisableChecker disableChecker;
-    private RedisSupport redis;
+    private ProxySupport proxy;
 
     public NameTag() {
         Condition disableCondition = Condition.getCondition(config().getString("scoreboard-teams.disable-condition"));
@@ -41,8 +41,8 @@ public class NameTag extends TabFeature implements NameTagManager, JoinListener,
     public void load() {
         TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.NAME_TAGS_COLLISION, collisionManager);
         collisionManager.load();
-        // RedisSupport is instantiated after NameTags, so must be loaded after
-        redis = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
+        // ProxySupport is instantiated after NameTags, so must be loaded after
+        proxy = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PROXY_SUPPORT);
         TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.NAME_TAGS_VISIBILITY, new VisibilityRefresher(this));
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
             all.getScoreboard().setAntiOverrideTeams(antiOverride);
@@ -153,7 +153,7 @@ public class NameTag extends TabFeature implements NameTagManager, JoinListener,
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             updateTeamData(p, viewer);
         }
-        if (redis != null) redis.updateTeam(p, p.sortingData.getShortTeamName(),
+        if (proxy != null) proxy.updateTeam(p, p.sortingData.getShortTeamName(),
                 p.getProperty(TabConstants.Property.TAGPREFIX).get(),
                 p.getProperty(TabConstants.Property.TAGSUFFIX).get(),
                 getTeamVisibility(p, p) ? NameVisibility.ALWAYS : NameVisibility.NEVER);

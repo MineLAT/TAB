@@ -4,8 +4,8 @@ import lombok.*;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.features.redis.RedisPlayer;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxyPlayer;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,10 +35,10 @@ public abstract class TabList<P extends TabPlayer, C> {
     /** Expected names based on configuration, saving to restore them if another plugin overrides them */
     private final Map<TabPlayer, C> expectedDisplayNames = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private final RedisSupport redisSupport = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
+    private final ProxySupport proxySupport = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PROXY_SUPPORT);
 
     /** Expected names based on configuration, saving to restore them if another plugin overrides them */
-    private final Map<RedisPlayer, C> expectedRedisDisplayNames = Collections.synchronizedMap(new WeakHashMap<>());
+    private final Map<ProxyPlayer, C> expectedProxyDisplayNames = Collections.synchronizedMap(new WeakHashMap<>());
 
     /** Expected header sent by the plugin */
     private C expectedHeader;
@@ -151,9 +151,9 @@ public abstract class TabList<P extends TabPlayer, C> {
         TabPlayer player = TAB.getInstance().getPlayerByTabListUUID(entry);
         if (player != null) expectedDisplayNames.put(player, displayName);
 
-        if (redisSupport != null) {
-            RedisPlayer redisPlayer = redisSupport.getRedisPlayers().get(entry);
-            if (redisPlayer != null) expectedRedisDisplayNames.put(redisPlayer, displayName);
+        if (proxySupport != null) {
+            ProxyPlayer proxyPlayer = proxySupport.getProxyPlayers().get(entry);
+            if (proxyPlayer != null) expectedProxyDisplayNames.put(proxyPlayer, displayName);
         }
     }
 
@@ -174,10 +174,10 @@ public abstract class TabList<P extends TabPlayer, C> {
             return expectedDisplayNames.get(player);
         }
 
-        if (redisSupport != null) {
-            RedisPlayer redisPlayer = redisSupport.getRedisPlayers().get(id);
-            if (redisPlayer != null && expectedRedisDisplayNames.containsKey(redisPlayer)) {
-                return expectedRedisDisplayNames.get(redisPlayer);
+        if (proxySupport != null) {
+            ProxyPlayer proxyPlayer = proxySupport.getProxyPlayers().get(id);
+            if (proxyPlayer != null && expectedProxyDisplayNames.containsKey(proxyPlayer)) {
+                return expectedProxyDisplayNames.get(proxyPlayer);
             }
         }
         return null;

@@ -6,7 +6,7 @@ import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.features.bossbar.BossBarManagerImpl;
 import me.neznamy.tab.shared.features.injection.PipelineInjector;
 import me.neznamy.tab.shared.features.nametags.NameTag;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.types.TabFeature;
 import me.neznamy.tab.shared.hook.PremiumVanishHook;
 import me.neznamy.tab.shared.placeholders.expansion.TabExpansion;
@@ -79,11 +79,11 @@ public interface Platform {
     @NotNull TabExpansion createTabExpansion();
 
     /**
-     * Creates RedisSupport feature, registers listeners and returns it
+     * Creates ProxySupport feature, registers listeners and returns it
      *
      * @return  Created instance
      */
-    @Nullable RedisSupport getRedisSupport();
+    @Nullable ProxySupport getProxySupport();
 
     /**
      * Returns per world player list feature handler.

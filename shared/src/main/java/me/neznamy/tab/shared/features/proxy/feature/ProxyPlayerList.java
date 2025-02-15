@@ -1,4 +1,4 @@
-package me.neznamy.tab.shared.features.redis.feature;
+package me.neznamy.tab.shared.features.proxy.feature;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -9,35 +9,35 @@ import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.features.PlayerList;
-import me.neznamy.tab.shared.features.redis.RedisPlayer;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
-import me.neznamy.tab.shared.features.redis.message.RedisMessage;
+import me.neznamy.tab.shared.features.proxy.ProxyPlayer;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
+import me.neznamy.tab.shared.features.proxy.message.ProxyMessage;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class RedisPlayerList extends RedisFeature {
+public class ProxyPlayerList extends ProxyFeature {
 
-    private final RedisSupport redisSupport;
+    private final ProxySupport proxySupport;
     @Getter private final PlayerList playerList;
 
-    public RedisPlayerList(@NotNull RedisSupport redisSupport, @NotNull PlayerList playerList) {
-        this.redisSupport = redisSupport;
+    public ProxyPlayerList(@NotNull ProxySupport proxySupport, @NotNull PlayerList playerList) {
+        this.proxySupport = proxySupport;
         this.playerList = playerList;
-        redisSupport.registerMessage("tabformat", Update.class, Update::new);
+        proxySupport.registerMessage("tabformat", Update.class, Update::new);
     }
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
         if (player.getVersion().getMinorVersion() < 8) return;
-        for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            player.getTabList().updateDisplayName(redis.getUniqueId(), redis.getTabFormat());
+        for (ProxyPlayer proxied : proxySupport.getProxyPlayers().values()) {
+            player.getTabList().updateDisplayName(proxied.getUniqueId(), proxied.getTabFormat());
         }
     }
 
     @Override
-    public void onJoin(@NotNull RedisPlayer player) {
+    public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
             viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
@@ -57,12 +57,12 @@ public class RedisPlayerList extends RedisFeature {
     }
 
     @Override
-    public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+    public void read(@NotNull ByteArrayDataInput in, @NotNull ProxyPlayer player) {
         player.setTabFormat(TabComponent.optimized(in.readUTF()));
     }
 
     @Override
-    public void onVanishStatusChange(@NotNull RedisPlayer player) {
+    public void onVanishStatusChange(@NotNull ProxyPlayer player) {
         if (player.isVanished()) return;
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
@@ -72,7 +72,7 @@ public class RedisPlayerList extends RedisFeature {
 
     @NoArgsConstructor
     @AllArgsConstructor
-    public class Update extends RedisMessage {
+    public class Update extends ProxyMessage {
 
         private UUID playerId;
         private String format;
@@ -90,8 +90,8 @@ public class RedisPlayerList extends RedisFeature {
         }
 
         @Override
-        public void process(@NotNull RedisSupport redisSupport) {
-            RedisPlayer target = redisSupport.getRedisPlayers().get(playerId);
+        public void process(@NotNull ProxySupport proxySupport) {
+            ProxyPlayer target = proxySupport.getProxyPlayers().get(playerId);
             if (target == null) return; // Print warn?
             target.setTabFormat(TabComponent.optimized(format));
             onJoin(target);

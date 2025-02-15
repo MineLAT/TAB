@@ -6,14 +6,14 @@ import com.velocitypowered.api.event.Subscribe;
 import lombok.AllArgsConstructor;
 import me.neznamy.tab.platforms.velocity.VelocityTAB;
 import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * RedisBungee implementation for Velocity
  */
 @AllArgsConstructor
-public class VelocityRedisSupport extends RedisSupport {
+public class VelocityRedisSupport extends ProxySupport {
 
     /** Plugin reference for registering listener */
     @NotNull

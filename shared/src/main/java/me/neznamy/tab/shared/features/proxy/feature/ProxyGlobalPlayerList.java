@@ -1,4 +1,4 @@
-package me.neznamy.tab.shared.features.redis.feature;
+package me.neznamy.tab.shared.features.proxy.feature;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -6,29 +6,29 @@ import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
 import me.neznamy.tab.shared.features.GlobalPlayerList;
-import me.neznamy.tab.shared.features.redis.RedisPlayer;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxyPlayer;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.platform.TabList;
 import org.jetbrains.annotations.NotNull;
 
 @RequiredArgsConstructor
-public class RedisGlobalPlayerList extends RedisFeature {
+public class ProxyGlobalPlayerList extends ProxyFeature {
 
-    private final RedisSupport redisSupport;
+    private final ProxySupport proxySupport;
     private final GlobalPlayerList globalPlayerList;
 
     @Override
     public void onJoin(@NotNull TabPlayer player) {
-        for (RedisPlayer redis : redisSupport.getRedisPlayers().values()) {
-            if (!redis.getServer().equals(player.getServer()) && shouldSee(player, redis)) {
-                player.getTabList().addEntry(getEntry(redis));
+        for (ProxyPlayer proxied : proxySupport.getProxyPlayers().values()) {
+            if (!proxied.getServer().equals(player.getServer()) && shouldSee(player, proxied)) {
+                player.getTabList().addEntry(getEntry(proxied));
             }
         }
     }
 
     @Override
-    public void onJoin(@NotNull RedisPlayer player) {
+    public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (shouldSee(viewer, player) && !viewer.getServer().equals(player.getServer())) {
                 viewer.getTabList().addEntry(getEntry(player));
@@ -37,8 +37,8 @@ public class RedisGlobalPlayerList extends RedisFeature {
     }
 
     @Override
-    public void onServerSwitch(@NotNull RedisPlayer player) {
-        TAB.getInstance().getCPUManager().runTaskLater(200, redisSupport.getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
+    public void onServerSwitch(@NotNull ProxyPlayer player) {
+        TAB.getInstance().getCPUManager().runTaskLater(200, proxySupport.getFeatureName(), TabConstants.CpuUsageCategory.SERVER_SWITCH, () -> {
             for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
                 if (viewer.getServer().equals(player.getServer())) continue;
                 if (shouldSee(viewer, player)) {
@@ -51,7 +51,7 @@ public class RedisGlobalPlayerList extends RedisFeature {
     }
 
     @Override
-    public void onQuit(@NotNull RedisPlayer player) {
+    public void onQuit(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (!player.getServer().equals(viewer.getServer())) {
                 viewer.getTabList().removeEntry(player.getUniqueId());
@@ -72,7 +72,7 @@ public class RedisGlobalPlayerList extends RedisFeature {
     }
 
     @Override
-    public void read(@NotNull ByteArrayDataInput in, @NotNull RedisPlayer player) {
+    public void read(@NotNull ByteArrayDataInput in, @NotNull ProxyPlayer player) {
         if (in.readBoolean()) {
             String value = in.readUTF();
             String signature = null;
@@ -88,19 +88,19 @@ public class RedisGlobalPlayerList extends RedisFeature {
         onJoin(player);
     }
 
-    private boolean shouldSee(@NotNull TabPlayer viewer, @NotNull RedisPlayer target) {
+    private boolean shouldSee(@NotNull TabPlayer viewer, @NotNull ProxyPlayer target) {
         if (target.isVanished() && !viewer.hasPermission(TabConstants.Permission.SEE_VANISHED)) return false;
         if (globalPlayerList.isSpyServer(viewer.getServer())) return true;
         return globalPlayerList.getServerGroup(viewer.getServer()).equals(globalPlayerList.getServerGroup(target.getServer()));
     }
 
     @NotNull
-    private TabList.Entry getEntry(@NotNull RedisPlayer player) {
+    private TabList.Entry getEntry(@NotNull ProxyPlayer player) {
         return new TabList.Entry(player.getUniqueId(), player.getNickname(), player.getSkin(), true, 0, 0, player.getTabFormat());
     }
 
     @Override
-    public void onVanishStatusChange(@NotNull RedisPlayer player) {
+    public void onVanishStatusChange(@NotNull ProxyPlayer player) {
         if (player.isVanished()) {
             for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
                 if (!shouldSee(all, player)) {

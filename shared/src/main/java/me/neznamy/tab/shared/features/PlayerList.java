@@ -10,7 +10,7 @@ import me.neznamy.tab.shared.chat.SimpleComponent;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.features.layout.LayoutManagerImpl;
 import me.neznamy.tab.shared.features.layout.PlayerSlot;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.types.*;
 import me.neznamy.tab.shared.placeholders.conditions.Condition;
 import me.neznamy.tab.shared.platform.TabPlayer;
@@ -30,7 +30,7 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
     protected final boolean antiOverrideTabList = config().getBoolean("tablist-name-formatting.anti-override", true);
 
     private final LayoutManagerImpl layoutManager = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.LAYOUT);
-    private RedisSupport redis;
+    private ProxySupport proxy;
     protected final DisableChecker disableChecker;
 
     /**
@@ -114,7 +114,7 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
             viewer.getTabList().updateDisplayName(tablistId, format ? getTabFormat(player, viewer) :
                     tablistId.getMostSignificantBits() == 0 ? new SimpleComponent(player.getName()) : null);
         }
-        if (redis != null) redis.updateTabFormat(player, player.getProperty(TabConstants.Property.TABPREFIX).get() +
+        if (proxy != null) proxy.updateTabFormat(player, player.getProperty(TabConstants.Property.TABPREFIX).get() +
                 player.getProperty(TabConstants.Property.CUSTOMTABNAME).get() + player.getProperty(TabConstants.Property.TABSUFFIX).get());
     }
 
@@ -139,14 +139,14 @@ public class PlayerList extends TabFeature implements TabListFormatManager, Join
 
     @Override
     public void load() {
-        redis = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
+        proxy = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PROXY_SUPPORT);
         for (TabPlayer all : TAB.getInstance().getOnlinePlayers()) {
             all.getTabList().setAntiOverride(antiOverrideTabList);
             updateProperties(all);
             if (disableChecker.isDisableConditionMet(all)) {
                 all.disabledPlayerList.set(true);
             } else {
-                if (redis != null) redis.updateTabFormat(all, all.getProperty(TabConstants.Property.TABPREFIX).get() + all.getProperty(TabConstants.Property.CUSTOMTABNAME).get() + all.getProperty(TabConstants.Property.TABSUFFIX).get());
+                if (proxy != null) proxy.updateTabFormat(all, all.getProperty(TabConstants.Property.TABPREFIX).get() + all.getProperty(TabConstants.Property.CUSTOMTABNAME).get() + all.getProperty(TabConstants.Property.TABSUFFIX).get());
             }
         }
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {

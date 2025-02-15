@@ -1,21 +1,21 @@
-package me.neznamy.tab.shared.features.redis.message;
+package me.neznamy.tab.shared.features.proxy.message;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.NoArgsConstructor;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.platform.TabPlayer;
 import org.jetbrains.annotations.NotNull;
 
 @NoArgsConstructor
-public class Load extends RedisMessage {
+public class Load extends ProxyMessage {
 
-    private RedisSupport redisSupport;
+    private ProxySupport proxySupport;
     private TabPlayer[] players;
     private PlayerJoin[] decodedPlayers;
 
-    public Load(@NotNull RedisSupport redisSupport, @NotNull TabPlayer[] players) {
-        this.redisSupport = redisSupport;
+    public Load(@NotNull ProxySupport proxySupport, @NotNull TabPlayer[] players) {
+        this.proxySupport = proxySupport;
         this.players = players;
     }
 
@@ -23,7 +23,7 @@ public class Load extends RedisMessage {
     public void write(@NotNull ByteArrayDataOutput out) {
         out.writeInt(players.length);
         for (TabPlayer player : players) {
-            new PlayerJoin(redisSupport, player).write(out);
+            new PlayerJoin(proxySupport, player).write(out);
         }
     }
 
@@ -39,10 +39,10 @@ public class Load extends RedisMessage {
     }
 
     @Override
-    public void process(@NotNull RedisSupport redisSupport) {
+    public void process(@NotNull ProxySupport proxySupport) {
         for (PlayerJoin join : decodedPlayers) {
-            if (!redisSupport.getRedisPlayers().containsKey(join.getDecodedPlayer().getUniqueId())) {
-                join.process(redisSupport);
+            if (!proxySupport.getProxyPlayers().containsKey(join.getDecodedPlayer().getUniqueId())) {
+                join.process(proxySupport);
             }
         }
     }

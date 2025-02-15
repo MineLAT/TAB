@@ -9,7 +9,7 @@ import me.neznamy.tab.shared.platform.TabPlayer;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import me.neznamy.tab.shared.TAB;
 import me.neznamy.tab.shared.TabConstants;
-import me.neznamy.tab.shared.features.redis.RedisSupport;
+import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.types.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +41,7 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
             "%player_health%".equals(rawValue) || "%player_health_rounded%".equals(rawValue) ?
             Scoreboard.HealthDisplay.HEARTS : Scoreboard.HealthDisplay.INTEGER;
     private final DisableChecker disableChecker;
-    private RedisSupport redis;
+    private ProxySupport proxy;
 
     /**
      * Constructs new instance and registers disable condition checker to feature manager.
@@ -80,7 +80,7 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
 
     @Override
     public void load() {
-        redis = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.REDIS_BUNGEE);
+        proxy = TAB.getInstance().getFeatureManager().getFeature(TabConstants.Feature.PROXY_SUPPORT);
         Map<TabPlayer, Integer> values = new HashMap<>();
         for (TabPlayer loaded : TAB.getInstance().getOnlinePlayers()) {
             loaded.setProperty(this, PROPERTY_VALUE, rawValue);
@@ -125,7 +125,7 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
                 setScore(connectedPlayer, all, getValueNumber(all), all.getProperty(PROPERTY_VALUE_FANCY).getFormat(connectedPlayer));
             }
         }
-        if (redis != null) redis.updateYellowNumber(connectedPlayer, value, valueFancy.get());
+        if (proxy != null) proxy.updateYellowNumber(connectedPlayer, value, valueFancy.get());
     }
 
     /**
@@ -152,7 +152,7 @@ public class YellowNumber extends TabFeature implements JoinListener, Loadable, 
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             setScore(viewer, refreshed, value, fancy.getFormat(viewer));
         }
-        if (redis != null) redis.updateYellowNumber(refreshed, value, fancy.get());
+        if (proxy != null) proxy.updateYellowNumber(refreshed, value, fancy.get());
     }
 
     @Override
