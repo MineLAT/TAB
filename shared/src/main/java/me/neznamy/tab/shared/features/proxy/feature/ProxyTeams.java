@@ -43,6 +43,7 @@ public class ProxyTeams extends ProxyFeature {
     @Override
     public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getScoreboard().registerTeam(player.getTeamName(), player.getTagPrefix(), player.getTagSuffix(),
                     player.getNameVisibility(), CollisionRule.ALWAYS,
                     Collections.singletonList(player.getNickname()), 2, EnumChatFormat.lastColorsOf(player.getTagPrefix()));
@@ -52,6 +53,7 @@ public class ProxyTeams extends ProxyFeature {
     @Override
     public void onQuit(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getScoreboard().unregisterTeam(player.getTeamName());
         }
     }

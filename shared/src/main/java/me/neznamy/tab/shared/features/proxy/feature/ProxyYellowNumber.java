@@ -43,6 +43,7 @@ public class ProxyYellowNumber extends ProxyFeature {
     @Override
     public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getScoreboard().setScore(
                     YellowNumber.OBJECTIVE_NAME,
                     player.getNickname(),

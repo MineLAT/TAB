@@ -95,6 +95,6 @@ public class ProxyPlayer {
 
     @NotNull
     public TabList.Entry asEntry() {
-        return new TabList.Entry(uniqueId, name, skin, false, 0, 0, null);
+        return new TabList.Entry(uniqueId, name, skin, false, 0, 0, tabFormat);
     }
 }
