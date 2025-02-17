@@ -2,6 +2,8 @@ package me.neznamy.tab.shared;
 
 import java.util.*;
 
+import com.saicone.delivery4j.broker.RabbitMQBroker;
+import com.saicone.delivery4j.broker.RedisBroker;
 import me.neznamy.tab.api.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.shared.chat.TabComponent;
 import me.neznamy.tab.shared.config.Configs;
@@ -12,6 +14,7 @@ import me.neznamy.tab.shared.features.injection.PipelineInjector;
 import me.neznamy.tab.shared.features.layout.LayoutManagerImpl;
 import me.neznamy.tab.shared.features.nametags.NameTag;
 import me.neznamy.tab.shared.features.nametags.unlimited.NameTagX;
+import me.neznamy.tab.shared.features.proxy.ProxyMessengerSupport;
 import me.neznamy.tab.shared.features.proxy.ProxySupport;
 import me.neznamy.tab.shared.features.scoreboard.ScoreboardManagerImpl;
 import me.neznamy.tab.shared.features.sorting.Sorting;
@@ -458,6 +461,7 @@ public class FeatureManager {
         boolean unlimitedTags      = configuration.getConfig().getBoolean("scoreboard-teams.unlimited-nametag-mode.enabled", false);
         boolean globalPlayerList   = configuration.getConfig().getBoolean("global-playerlist.enabled", false);
         boolean tablistFormatting  = configuration.getConfig().getBoolean("tablist-name-formatting.enabled", true);
+        boolean proxySupport       = configuration.getConfig().getBoolean("proxy-support.enabled", false);
 
         if (perWorldPlayerList && layout) TAB.getInstance().getConfigHelper().startup().bothPerWorldPlayerListAndLayoutEnabled();
         if (yellowNumber && layout)       TAB.getInstance().getConfigHelper().startup().layoutBreaksYellowNumber();
@@ -520,8 +524,24 @@ public class FeatureManager {
         }
 
         // Must be loaded after: Global PlayerList, PlayerList, NameTags, YellowNumber, BelowName
-        ProxySupport proxy = TAB.getInstance().getPlatform().getProxySupport();
-        if (proxy != null) TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.PROXY_SUPPORT, proxy);
+        if (proxySupport) {
+            String type = configuration.getConfig().getString("proxy-support.type", "PLUGIN");
+            ProxySupport proxy;
+            if (type.equalsIgnoreCase("PLUGIN")) {
+                String plugin = configuration.getConfig().getString("proxy-support.plugin.name", "RedisBungee");
+                proxy = TAB.getInstance().getPlatform().getProxySupport(plugin);
+            } else if (type.equalsIgnoreCase("REDIS")) {
+                String url = configuration.getConfig().getString("proxy-support.redis.url");
+                proxy = new ProxyMessengerSupport(() -> RedisBroker.of(url));
+            } else if (type.equalsIgnoreCase("RABBITMQ")) {
+                String exchange = configuration.getConfig().getString("proxy-support.rabbitmq.exchange");
+                String url = configuration.getConfig().getString("proxy-support.rabbitmq.url");
+                proxy = new ProxyMessengerSupport(() -> RabbitMQBroker.of(url, exchange));
+            } else {
+                proxy = null;
+            }
+            if (proxy != null) TAB.getInstance().getFeatureManager().registerFeature(TabConstants.Feature.PROXY_SUPPORT, proxy);
+        }
 
         featureManager.registerFeature(TabConstants.Feature.NICK_COMPATIBILITY, new NickCompatibility());
     }

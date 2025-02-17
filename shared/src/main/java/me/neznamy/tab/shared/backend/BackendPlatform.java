@@ -23,7 +23,7 @@ public interface BackendPlatform extends Platform {
         return new GroupManager("None", p -> TabConstants.NO_GROUP);
     }
 
-    default ProxySupport getProxySupport() { return null; }
+    default ProxySupport getProxySupport(@NotNull String plugin) { return null; }
 
     @Override
     default void registerPlaceholders() {

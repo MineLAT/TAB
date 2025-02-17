@@ -62,10 +62,12 @@ public class VelocityPlatform extends ProxyPlatform {
 
     @Override
     @Nullable
-    public ProxySupport getProxySupport() {
-        if (ReflectionUtils.classExists("com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI") &&
-                RedisBungeeAPI.getRedisBungeeApi() != null) {
-            return new VelocityRedisSupport(plugin);
+    public ProxySupport getProxySupport(@NotNull String plugin) {
+        if (plugin.equalsIgnoreCase("RedisBungee")) {
+            if (ReflectionUtils.classExists("com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI") &&
+                    RedisBungeeAPI.getRedisBungeeApi() != null) {
+                return new VelocityRedisSupport(this.plugin);
+            }
         }
         return null;
     }

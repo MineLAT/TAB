@@ -83,7 +83,7 @@ public interface Platform {
      *
      * @return  Created instance
      */
-    @Nullable ProxySupport getProxySupport();
+    @Nullable ProxySupport getProxySupport(@NotNull String plugin);
 
     /**
      * Returns per world player list feature handler.

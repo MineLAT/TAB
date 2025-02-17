@@ -66,10 +66,12 @@ public class BungeePlatform extends ProxyPlatform {
 
     @Override
     @Nullable
-    public ProxySupport getProxySupport() {
-        if (ReflectionUtils.classExists("com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI") &&
-                RedisBungeeAPI.getRedisBungeeApi() != null) {
-            return new BungeeRedisSupport(plugin);
+    public ProxySupport getProxySupport(@NotNull String plugin) {
+        if (plugin.equalsIgnoreCase("RedisBungee")) {
+            if (ReflectionUtils.classExists("com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI") &&
+                    RedisBungeeAPI.getRedisBungeeApi() != null) {
+                return new BungeeRedisSupport(this.plugin);
+            }
         }
         return null;
     }
