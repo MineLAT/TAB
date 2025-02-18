@@ -243,8 +243,8 @@ mysql:
   useSSL: true
 
 proxy-support:
-  enabled: false
-  # Types: PLUGIN, REDIS, RABBITMQ, NONE
+  enabled: true
+  # Types: PLUGIN, REDIS, RABBITMQ
   type: PLUGIN
   plugin:
     # Plugins: RedisBungee

@@ -442,4 +442,16 @@ public class Converter {
         config.removeOption("tablist-name-formatting.align-tabsuffix-on-the-right");
         config.removeOption("tablist-name-formatting.character-width-overrides");
     }
+
+    public void convert419to420(@NotNull ConfigurationFile config) {
+        if (!config.hasConfigOption("proxy-support.enabled")) {
+            TAB.getInstance().getPlatform().logInfo(TabComponent.fromColoredText(EnumChatFormat.YELLOW + "Performing configuration conversion from 4.1.9 to 4.2.0"));
+            config.set("proxy-support.enabled", true);
+            config.set("proxy-support.type", "PLUGIN");
+            config.set("proxy-support.plugin.name", "RedisBungee");
+            config.set("proxy-support.redis.url", "redis://:password@localhost:6379/0");
+            config.set("proxy-support.rabbitmq.exchange", "plugin");
+            config.set("proxy-support.rabbitmq.url", "amqp://guest:guest@localhost:5672/%2F");
+        }
+    }
 }

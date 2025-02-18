@@ -32,10 +32,11 @@ public class ProxyPlayerList extends ProxyFeature {
     public void onJoin(@NotNull TabPlayer player) {
         if (player.getVersion().getMinorVersion() < 8) return;
         for (ProxyPlayer proxied : proxySupport.getProxyPlayers().values()) {
-            if (!TAB.getInstance().getPlatform().isProxy()) {
+            if (TAB.getInstance().getPlatform().isProxy()) {
+                player.getTabList().updateDisplayName(proxied.getUniqueId(), proxied.getTabFormat());
+            } else {
                 player.getTabList().addEntry(proxied.asEntry());
             }
-            player.getTabList().updateDisplayName(proxied.getUniqueId(), proxied.getTabFormat());
         }
     }
 
