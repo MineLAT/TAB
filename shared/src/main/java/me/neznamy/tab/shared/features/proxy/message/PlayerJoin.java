@@ -49,6 +49,11 @@ public class PlayerJoin extends ProxyMessage {
 
     @Override
     public void process(@NotNull ProxySupport proxySupport) {
+        // Do not create duplicated player
+        if (TAB.getInstance().isPlayerConnected(decodedPlayer.getUniqueId())) {
+            TAB.getInstance().debug("The player " + decodedPlayer.getName() + " is already connected");
+            return;
+        }
         proxySupport.getProxyPlayers().put(decodedPlayer.getUniqueId(), decodedPlayer);
         proxySupport.getFeatures().forEach(f -> f.onJoin(decodedPlayer));
     }

@@ -90,6 +90,8 @@ public class ProxyGlobalPlayerList extends ProxyFeature {
 
     private boolean shouldSee(@NotNull TabPlayer viewer, @NotNull ProxyPlayer target) {
         if (target.isVanished() && !viewer.hasPermission(TabConstants.Permission.SEE_VANISHED)) return false;
+        // Do not show duplicate player that will be removed in a sec
+        if (TAB.getInstance().isPlayerConnected(target.getUniqueId())) return false;
         if (globalPlayerList.isSpyServer(viewer.getServer())) return true;
         return globalPlayerList.getServerGroup(viewer.getServer()).equals(globalPlayerList.getServerGroup(target.getServer()));
     }

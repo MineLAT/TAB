@@ -44,7 +44,6 @@ public class ProxyPlayerList extends ProxyFeature {
     public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
-            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             if (TAB.getInstance().getPlatform().isProxy()) {
                 viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
             } else {
@@ -63,7 +62,6 @@ public class ProxyPlayerList extends ProxyFeature {
         if (TAB.getInstance().getPlatform().isProxy()) return;
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
-            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getTabList().removeEntry(player.getUniqueId());
         }
     }

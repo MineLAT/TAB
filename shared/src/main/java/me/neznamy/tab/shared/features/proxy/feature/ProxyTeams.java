@@ -43,7 +43,6 @@ public class ProxyTeams extends ProxyFeature {
     @Override
     public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getScoreboard().registerTeam(player.getTeamName(), player.getTagPrefix(), player.getTagSuffix(),
                     player.getNameVisibility(), CollisionRule.ALWAYS,
                     Collections.singletonList(player.getNickname()), 2, EnumChatFormat.lastColorsOf(player.getTagPrefix()));
@@ -53,7 +52,6 @@ public class ProxyTeams extends ProxyFeature {
     @Override
     public void onQuit(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getScoreboard().unregisterTeam(player.getTeamName());
         }
     }
@@ -129,6 +127,11 @@ public class ProxyTeams extends ProxyFeature {
         public void process(@NotNull ProxySupport proxySupport) {
             ProxyPlayer target = proxySupport.getProxyPlayers().get(playerId);
             if (target == null) return; // Print warn?
+            // Team is already being processed by connected player
+            if (TAB.getInstance().isPlayerConnected(target.getUniqueId())) {
+                TAB.getInstance().debug("The player " + target.getName() + " is already connected");
+                return;
+            }
             String oldTeamName = target.getTeamName();
             String newTeamName = checkTeamName(target, teamName.substring(0, teamName.length()-1), 65);
             target.setTeamName(newTeamName);

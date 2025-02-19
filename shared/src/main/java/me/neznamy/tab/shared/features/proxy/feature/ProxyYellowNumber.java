@@ -43,7 +43,6 @@ public class ProxyYellowNumber extends ProxyFeature {
     @Override
     public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            if (viewer.getUniqueId().equals(player.getUniqueId())) continue;
             viewer.getScoreboard().setScore(
                     YellowNumber.OBJECTIVE_NAME,
                     player.getNickname(),
@@ -97,6 +96,11 @@ public class ProxyYellowNumber extends ProxyFeature {
         public void process(@NotNull ProxySupport proxySupport) {
             ProxyPlayer target = proxySupport.getProxyPlayers().get(playerId);
             if (target == null) return; // Print warn?
+            // Yellow number is already being processed by connected player
+            if (TAB.getInstance().isPlayerConnected(target.getUniqueId())) {
+                TAB.getInstance().debug("The player " + target.getName() + " is already connected");
+                return;
+            }
             target.setPlayerlistNumber(value);
             target.setPlayerlistFancy(TabComponent.optimized(fancyValue));
             onJoin(target);
