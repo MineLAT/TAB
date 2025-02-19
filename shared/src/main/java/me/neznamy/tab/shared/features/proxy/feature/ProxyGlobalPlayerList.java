@@ -22,7 +22,7 @@ public class ProxyGlobalPlayerList extends ProxyFeature {
     public void onJoin(@NotNull TabPlayer player) {
         for (ProxyPlayer proxied : proxySupport.getProxyPlayers().values()) {
             if (!proxied.getServer().equals(player.getServer()) && shouldSee(player, proxied)) {
-                player.getTabList().addEntry(getEntry(proxied));
+                player.getTabList().addEntry(proxied.asEntry());
             }
         }
     }
@@ -31,7 +31,7 @@ public class ProxyGlobalPlayerList extends ProxyFeature {
     public void onJoin(@NotNull ProxyPlayer player) {
         for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
             if (shouldSee(viewer, player) && !viewer.getServer().equals(player.getServer())) {
-                viewer.getTabList().addEntry(getEntry(player));
+                viewer.getTabList().addEntry(player.asEntry());
             }
         }
     }
@@ -42,7 +42,7 @@ public class ProxyGlobalPlayerList extends ProxyFeature {
             for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
                 if (viewer.getServer().equals(player.getServer())) continue;
                 if (shouldSee(viewer, player)) {
-                    viewer.getTabList().addEntry(getEntry(player));
+                    viewer.getTabList().addEntry(player.asEntry());
                 } else {
                     viewer.getTabList().removeEntry(player.getUniqueId());
                 }
@@ -94,11 +94,6 @@ public class ProxyGlobalPlayerList extends ProxyFeature {
         return globalPlayerList.getServerGroup(viewer.getServer()).equals(globalPlayerList.getServerGroup(target.getServer()));
     }
 
-    @NotNull
-    private TabList.Entry getEntry(@NotNull ProxyPlayer player) {
-        return new TabList.Entry(player.getUniqueId(), player.getNickname(), player.getSkin(), true, 0, 0, player.getTabFormat());
-    }
-
     @Override
     public void onVanishStatusChange(@NotNull ProxyPlayer player) {
         if (player.isVanished()) {
@@ -110,7 +105,7 @@ public class ProxyGlobalPlayerList extends ProxyFeature {
         } else {
             for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
                 if (shouldSee(viewer, player)) {
-                    viewer.getTabList().addEntry(getEntry(player));
+                    viewer.getTabList().addEntry(player.asEntry());
                 }
             }
         }
