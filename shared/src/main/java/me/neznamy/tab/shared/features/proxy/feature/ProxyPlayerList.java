@@ -34,7 +34,7 @@ public class ProxyPlayerList extends ProxyFeature {
         for (ProxyPlayer proxied : proxySupport.getProxyPlayers().values()) {
             if (TAB.getInstance().getPlatform().isProxy()) {
                 player.getTabList().updateDisplayName(proxied.getUniqueId(), proxied.getTabFormat());
-            } else {
+            } else if (shouldSee(player, proxied)) {
                 player.getTabList().addEntry(proxied.asEntry());
             }
         }
@@ -46,7 +46,7 @@ public class ProxyPlayerList extends ProxyFeature {
             if (viewer.getVersion().getMinorVersion() < 8) continue;
             if (TAB.getInstance().getPlatform().isProxy()) {
                 viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
-            } else {
+            } else if (shouldSee(viewer, player)) {
                 viewer.getTabList().addEntry(player.asEntry());
             }
         }
@@ -78,12 +78,33 @@ public class ProxyPlayerList extends ProxyFeature {
         player.setTabFormat(TabComponent.optimized(in.readUTF()));
     }
 
+    private boolean shouldSee(@NotNull TabPlayer viewer, @NotNull ProxyPlayer target) {
+        if (target.isVanished() && !viewer.hasPermission(TabConstants.Permission.SEE_VANISHED)) return false;
+        // Do not show duplicate player that will be removed in a sec
+        return !TAB.getInstance().isPlayerConnected(target.getUniqueId());
+    }
+
     @Override
     public void onVanishStatusChange(@NotNull ProxyPlayer player) {
-        if (player.isVanished()) return;
-        for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
-            if (viewer.getVersion().getMinorVersion() < 8) continue;
-            viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
+        if (TAB.getInstance().getPlatform().isProxy()) {
+            if (player.isVanished()) return;
+            for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+                if (viewer.getVersion().getMinorVersion() < 8) continue;
+                viewer.getTabList().updateDisplayName(player.getUniqueId(), player.getTabFormat());
+            }
+        } else if (player.isVanished()) {
+            for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+                if (!shouldSee(viewer, player)) {
+                    viewer.getTabList().removeEntry(player.getUniqueId());
+                }
+            }
+        } else {
+            for (TabPlayer viewer : TAB.getInstance().getOnlinePlayers()) {
+                if (viewer.getVersion().getMinorVersion() < 8) continue;
+                if (shouldSee(viewer, player)) {
+                    viewer.getTabList().addEntry(player.asEntry());
+                }
+            }
         }
     }
 
