@@ -90,7 +90,7 @@ public abstract class TabList<P extends TabPlayer, C> {
     public void addEntry(@NonNull Entry entry) {
         C component = entry.displayName == null ? null : toComponent(entry.displayName);
         setExpectedDisplayName(entry.getUniqueId(), component);
-        addEntry0(entry.uniqueId, entry.name, entry.skin, entry.listed, entry.latency, entry.gameMode, component);
+        addEntry0(entry, component);
 
         if (player.getVersion().getMinorVersion() == 8) {
             // Compensation for 1.8.0 client sided bug
@@ -248,6 +248,10 @@ public abstract class TabList<P extends TabPlayer, C> {
      */
     public abstract void updateListed(@NonNull UUID entry, boolean listed);
 
+    public void addEntry0(@NonNull Entry entry, @Nullable C displayName) {
+        addEntry0(entry.uniqueId, entry.name, entry.skin, entry.listed, entry.latency, entry.gameMode, displayName);
+    }
+
     /**
      * Adds specified entry to tablist
      *
@@ -266,7 +270,9 @@ public abstract class TabList<P extends TabPlayer, C> {
      * @param   displayName
      *          Entry display name
      */
-    public abstract void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable C displayName);
+    public void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable C displayName) {
+        // empty method
+    }
 
     /**
      * Sets header and footer to specified values.

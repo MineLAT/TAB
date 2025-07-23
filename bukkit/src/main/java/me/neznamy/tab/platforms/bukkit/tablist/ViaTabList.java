@@ -2,190 +2,181 @@ package me.neznamy.tab.platforms.bukkit.tablist;
 
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.connection.UserConnection;
+import com.viaversion.viaversion.api.protocol.Protocol;
+import com.viaversion.viaversion.api.protocol.packet.PacketType;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.protocol.packet.State;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.protocols.v1_15_2to1_16.Protocol1_15_2To1_16;
-import com.viaversion.viaversion.protocols.v1_15_2to1_16.packet.ClientboundPackets1_16;
 import lombok.NonNull;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
-import me.neznamy.tab.shared.chat.TabComponent;
-import me.neznamy.tab.shared.hook.ViaVersionHook;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.BitSet;
 import java.util.Collection;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-public class ViaTabList extends TabListBase<JsonElement> {
+public abstract class ViaTabList<C> extends TabListBase<C> {
 
-    private static final int ADD_PLAYER = 0;
-    private static final int UPDATE_GAME_MODE = 1;
-    private static final int UPDATE_LATENCY = 2;
-    private static final int UPDATE_DISPLAY_NAME = 3;
-    private static final int REMOVE_PLAYER = 4;
+    private static final long CHECK_DELAY = 50;
 
-    private final UserConnection connection;
+    protected final Class<? extends Protocol> protocol;
+    private final PacketType playerInfoUpdate;
+    private final PacketType tabList;
+    /** User connection this tablist belongs to */
+    protected final UserConnection connection;
+
+    private transient ScheduledFuture<?> task;
+    private transient final Queue<PacketWrapper> queuedPackets = new ConcurrentLinkedQueue<>();
 
     /**
-     *  Constructs new instance with given player.
      *
-     * @param player Player this tablist will belong to
+     * @param player
+     *        Player this tablist will belong to
+     * @param protocol
+     *        Protocol to be sent packets through
+     * @param playerInfoUpdate
+     *        Player information update packet
+     * @param tabList
+     *        Tab list packet
      */
-    protected ViaTabList(@NotNull BukkitTabPlayer player) {
+    protected ViaTabList(@NonNull BukkitTabPlayer player, @NonNull Class<? extends Protocol> protocol, @NonNull PacketType playerInfoUpdate, @NonNull PacketType tabList) {
         super(player);
+        this.protocol = protocol;
+        this.playerInfoUpdate = playerInfoUpdate;
+        this.tabList = tabList;
         this.connection = Via.getManager().getConnectionManager().getConnectedClient(player.getUniqueId());
+
+        // Queue packets until connection is available
+        // Is important to use scheduleWithFixedDelay() to avoid task overlap
+        task = connection.getChannel().eventLoop().scheduleWithFixedDelay(() -> {
+            if (connection.getProtocolInfo().getClientState() == State.PLAY) {
+                PacketWrapper packet;
+                while ((packet = queuedPackets.poll()) != null) {
+                    packet.send(protocol);
+                }
+                task.cancel(true);
+            }
+        }, 0L, CHECK_DELAY, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public void removeEntries(@NonNull Collection<UUID> entries) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.PLAYER_INFO, null, connection);
-
-        // Action
-        packet.write(Types.VAR_INT, REMOVE_PLAYER);
-        // Players size
-        packet.write(Types.VAR_INT, entries.size());
-        // Players
-        for (UUID entry : entries) {
-            packet.write(Types.UUID, entry);
-        }
-
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
-    }
-
-    @Override
-    public void removeEntry(@NonNull UUID entry) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.PLAYER_INFO, null, connection);
-
-        // Action
-        packet.write(Types.VAR_INT, REMOVE_PLAYER);
-        // Players size
-        packet.write(Types.VAR_INT, 1);
-        // Players
-        packet.write(Types.UUID, entry);
-
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
-    }
-
-    @Override
-    public void updateDisplayName0(@NonNull UUID entry, @Nullable JsonElement displayName) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.PLAYER_INFO, null, connection);
-
-        // Action
-        packet.write(Types.VAR_INT, UPDATE_DISPLAY_NAME);
-        // Players size
-        packet.write(Types.VAR_INT, 1);
-        // Players
-        packet.write(Types.UUID, entry);
-        packet.write(Types.OPTIONAL_COMPONENT, displayName);
-
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
+    public void updateDisplayName0(@NonNull UUID entry, @Nullable C displayName) {
+        sendInfoUpdate(Action.UPDATE_DISPLAY_NAME, entry, displayName);
     }
 
     @Override
     public void updateLatency(@NonNull UUID entry, int latency) {
-        updateInteger(entry, UPDATE_LATENCY, latency);
+        sendInfoUpdate(Action.UPDATE_LATENCY, entry, latency);
     }
 
     @Override
     public void updateGameMode(@NonNull UUID entry, int gameMode) {
-        updateInteger(entry, UPDATE_GAME_MODE, gameMode);
-    }
-
-    private void updateInteger(@NonNull UUID entry, int action, int value) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.PLAYER_INFO, null, connection);
-
-        // Action
-        packet.write(Types.VAR_INT, action);
-        // Players size
-        packet.write(Types.VAR_INT, 1);
-        // Players
-        packet.write(Types.UUID, entry);
-        packet.write(Types.VAR_INT, value);
-
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
-    }
-
-    @Override
-    public void updateListed(@NonNull UUID entry, boolean listed) {
-        // Added in 1.19.3
+        sendInfoUpdate(Action.UPDATE_GAME_MODE, entry, gameMode);
     }
 
     @Override
     public void addEntries(@NonNull Collection<Entry> entries) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.PLAYER_INFO, null, connection);
+        final PacketWrapper packet = PacketWrapper.create(playerInfoUpdate, null, connection);
 
         // Action
-        packet.write(Types.VAR_INT, ADD_PLAYER);
+        writeAction(packet, Action.ADD_PLAYER);
         // Players size
         packet.write(Types.VAR_INT, entries.size());
         // Players
         for (Entry entry : entries) {
             packet.write(Types.UUID, entry.getUniqueId());
-            packet.write(Types.STRING, entry.getName());
-            if (entry.getSkin() == null) {
-                // Properties size
-                packet.write(Types.VAR_INT, 0);
-            } else {
-                // Properties size
-                packet.write(Types.VAR_INT, 1);
-                // Properties
-                packet.write(Types.STRING, entry.getName());
-                packet.write(Types.STRING, entry.getSkin().getValue());
-                packet.write(Types.OPTIONAL_STRING, entry.getSkin().getSignature());
-            }
-            packet.write(Types.VAR_INT, entry.getGameMode());
-            packet.write(Types.VAR_INT, entry.getLatency());
-
-            final JsonElement displayName = entry.getDisplayName() == null ? null : toComponent(entry.getDisplayName());
-            setExpectedDisplayName(entry.getUniqueId(), displayName);
-            packet.write(Types.OPTIONAL_COMPONENT, displayName);
+            writeEntry(packet, entry, entry.getDisplayName() == null ? null : toComponent(entry.getDisplayName()));
         }
 
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
+        send(packet);
     }
 
     @Override
-    public void addEntry0(@NonNull UUID id, @NonNull String name, @Nullable Skin skin, boolean listed, int latency, int gameMode, @Nullable JsonElement displayName) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.PLAYER_INFO, null, connection);
+    public void addEntry0(@NonNull Entry entry, @Nullable C displayName) {
+        sendInfoUpdate(Action.ADD_PLAYER, entry.getUniqueId(), entry, displayName);
+    }
+
+    @Override
+    public void setPlayerListHeaderFooter0(@NonNull C header, @NonNull C footer) {
+        final PacketWrapper packet = PacketWrapper.create(tabList, null, connection);
+
+        writeComponent(packet, header);
+        writeComponent(packet, footer);
+
+        send(packet);
+    }
+
+    protected void sendInfoUpdate(@NonNull Action action, @NonNull UUID uniqueId, Object value) {
+        sendInfoUpdate(action, uniqueId, value, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void sendInfoUpdate(@NonNull Action action, @NonNull UUID uniqueId, Object value, @Nullable C displayName) {
+        final PacketWrapper packet = PacketWrapper.create(playerInfoUpdate, null, connection);
 
         // Action
-        packet.write(Types.VAR_INT, ADD_PLAYER);
+        writeAction(packet, action);
         // Players size
         packet.write(Types.VAR_INT, 1);
         // Players
-        packet.write(Types.UUID, id);
-        packet.write(Types.STRING, name);
-        if (skin == null) {
-            // Properties size
-            packet.write(Types.VAR_INT, 0);
-        } else {
-            // Properties size
-            packet.write(Types.VAR_INT, 1);
-            // Properties
-            packet.write(Types.STRING, name);
-            packet.write(Types.STRING, skin.getValue());
-            packet.write(Types.OPTIONAL_STRING, skin.getSignature());
+        packet.write(Types.UUID, uniqueId);
+        switch (action) {
+            case ADD_PLAYER:
+                writeEntry(packet, (Entry) value, displayName);
+                break;
+            case REMOVE_PLAYER:
+                break;
+            case UPDATE_GAME_MODE:
+            case UPDATE_LATENCY:
+            //case UPDATE_LIST_ORDER:
+                packet.write(Types.VAR_INT, (int) value);
+                break;
+            case UPDATE_LISTED:
+            //case UPDATE_HAT:
+                packet.write(Types.BOOLEAN, (boolean) value);
+                break;
+            case UPDATE_DISPLAY_NAME:
+                writeOptionalComponent(packet, (C) value);
+                break;
+            default:
+                throw new IllegalArgumentException("Cannot send info update with action " + action.name());
         }
-        packet.write(Types.VAR_INT, gameMode);
-        packet.write(Types.VAR_INT, latency);
-        packet.write(Types.OPTIONAL_COMPONENT, displayName);
 
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
+        send(packet);
     }
 
-    @Override
-    public void setPlayerListHeaderFooter0(@NonNull JsonElement header, @NonNull JsonElement footer) {
-        final PacketWrapper packet = PacketWrapper.create(ClientboundPackets1_16.TAB_LIST, null, connection);
+    protected abstract void writeComponent(@NonNull PacketWrapper packet, @NonNull C component);
 
-        packet.write(Types.COMPONENT, header);
-        packet.write(Types.COMPONENT, footer);
+    protected abstract void writeOptionalComponent(@NonNull PacketWrapper packet, @Nullable C component);
 
-        packet.scheduleSend(Protocol1_15_2To1_16.class);
+    protected abstract void writeAction(@NonNull PacketWrapper packet, @NonNull Action action);
+
+    protected abstract void writeEntry(@NonNull PacketWrapper packet, @NonNull Entry entry, @Nullable C displayName);
+
+    @NotNull
+    protected static BitSet bitSet(int nbits, int action) {
+        final BitSet bitSet = new BitSet(nbits);
+        bitSet.set(action);
+        return bitSet;
     }
 
-    @Override
-    public JsonElement toComponent(@NonNull TabComponent component) {
-        return ViaVersionHook.getInstance().getJson(component);
+    @NotNull
+    protected static BitSet bitSet(int nbits, int fromAction, int toAction) {
+        final BitSet bit = new BitSet(nbits);
+        bit.set(fromAction, toAction);
+        return bit;
+    }
+
+    protected void send(@NonNull PacketWrapper packet) {
+        if (!task.isCancelled()) {
+            queuedPackets.add(packet);
+        } else {
+            packet.scheduleSend(protocol);
+        }
     }
 }

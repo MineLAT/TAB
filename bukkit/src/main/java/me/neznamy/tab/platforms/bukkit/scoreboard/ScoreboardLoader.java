@@ -5,6 +5,8 @@ import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.platforms.bukkit.scoreboard.packet.PacketScoreboard;
+import me.neznamy.tab.platforms.bukkit.tablist.ViaTabList1193;
+import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.hook.ViaVersionHook;
 import me.neznamy.tab.shared.platform.Scoreboard;
 import org.jetbrains.annotations.NotNull;
@@ -30,8 +32,10 @@ public class ScoreboardLoader {
                 instance = PacketScoreboard::new;
             } else {
                 instance = player -> {
-                    if (player.getVersion().supportsRGB()) {
-                        return new ViaScoreboard(player);
+                    if (player.getVersion().getNetworkId() >= ProtocolVersion.V1_20_3.getNetworkId()) {
+                        return new ViaScoreboard1203(player);
+                    } else if (player.getVersion().supportsRGB()) {
+                        return new ViaScoreboard116(player);
                     } else {
                         return new PacketScoreboard(player);
                     }

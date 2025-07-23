@@ -5,6 +5,7 @@ import lombok.NonNull;
 import me.neznamy.tab.platforms.bukkit.BukkitTabPlayer;
 import me.neznamy.tab.platforms.bukkit.BukkitUtils;
 import me.neznamy.tab.platforms.bukkit.nms.BukkitReflection;
+import me.neznamy.tab.shared.ProtocolVersion;
 import me.neznamy.tab.shared.hook.ViaVersionHook;
 import me.neznamy.tab.shared.platform.TabList;
 import org.jetbrains.annotations.NotNull;
@@ -55,8 +56,10 @@ public abstract class TabListBase<C> extends TabList<BukkitTabPlayer, C> {
                     instance = PacketTabList18::new;
                 } else {
                     instance = player -> {
-                        if (player.getVersion().supportsRGB()) {
-                            return new ViaTabList(player);
+                        if (player.getVersion().getNetworkId() >= ProtocolVersion.V1_19_3.getNetworkId()) {
+                            return new ViaTabList1193(player);
+                        } else if (player.getVersion().supportsRGB()) {
+                            return new ViaTabList116(player);
                         } else {
                             return new PacketTabList18(player);
                         }
